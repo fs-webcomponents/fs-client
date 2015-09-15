@@ -53,7 +53,7 @@
      */
     Polymer({
       
-      is: 'fs-api',
+      is: 'fs-client',
       
       properties: {
         
@@ -96,27 +96,45 @@
         /**
          * The FamilySearch SDK object
          */
-        client: {
-          type: Object,
-          readOnly: true
-        }
+        client: Object
         
       },
       
       attached: function(){
         this.client = Clients.get(this.name);
-        if(typeof this.client === undefined){
+        
+        // If a client hasn't already been registered with that name
+        // then create a new one.
+        if(typeof this.client === 'undefined'){
+          
+          // Allow relative URIs to be specified. This makes it easy to create
+          // demos that may be run both locally and on the web on multiple hosts.
+          if(this.redirectUri && this.redirectUri.indexOf('/') === 0){
+            this.redirectUri = qualifyURL(this.redirectUri);
+          }
+          
+          // We don't do validation of the input because the SDK will do validation
+          // and throw errors when appropriate
           this.client = new FamilySearch({
             client_id: this.clientId,
             redirect_uri: this.redirectUri,
             environment: this.environment,
             save_access_token: this.saveAccessToken
           });
-          Clients.add(this.client);
+          
+          Clients.add(this.client, this.name);
         }
       }
       
     });
+    
+    // http://stackoverflow.com/q/470832
+    function qualifyURL(url) {
+    	console.log('qualify: ' + url);
+    	var a = document.createElement('a');
+    	a.href = url;
+    	return a.href;
+    }
     
   })();
 </script>

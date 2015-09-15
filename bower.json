@@ -1,6 +1,6 @@
 {
   "name": "fs-client",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Web component to access the FamilySearch APIs",
   "homepage": "https://github.com/york-solutions/fs-client",
   "main": "fs-client.html",
@@ -19,5 +19,9 @@
   ],
   "dependencies": {
     "polymer": "Polymer/polymer#^1.0.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "web-component-tester": "*"
   }
 }
