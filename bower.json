@@ -15,7 +15,7 @@
     "web-component",
     "web-components",
     "polymer",
-    "familysearch",
+    "familysearch"
   ],
   "dependencies": {
     "polymer": "Polymer/polymer#^1.0.0"
