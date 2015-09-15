@@ -2,114 +2,121 @@
 <script src="//cdn.jsdelivr.net/familysearch-javascript-sdk/2/familysearch-javascript-sdk.min.js"></script> 
 
 <script>
-  
-  /**
-   * Service for managing instances of the FamilySearch SDK
-   */
-  var FamilySearchClients = {
+  // Wrap in a function so we don't pollute the global scope.
+  (function(){
     
     /**
-     * Map of sdk instances
+     * Service for managing instances of the FamilySearch SDK
      */
-    _clients: {},
+    var Clients = {
+      
+      /**
+       * Map of sdk instances
+       */
+      _clients: {},
+      
+      /**
+       * Add a client.
+       * 
+       * @param {Object} FamilySearch SDK instance
+       * @param {String} [name] defaults to 'default'
+       */
+      add: function(client, name){
+        if(typeof name === 'undefined'){
+          name = 'default';
+        }
+        this._clients[name] = client;
+      },
+      
+      /**
+       * Get a client.
+       *
+       * @param {String} [name]
+       * @return {Object} FamilySearch SDK instance
+       */
+      get: function(name){
+        if(typeof name === 'undefined'){
+          name = 'default';
+        }
+        return this._clients[name];
+      }
+    };
     
     /**
-     * Add a client.
+     * `fs-api` is used to setup an SDK instance. It allows for multiple instances
+     * to be created but also gracefully handles the more common case where you
+     * only have one.
      * 
-     * @param {Object} FamilySearch SDK instance
-     * @param {String} [name] defaults to 'default'
+     * ##### Example
+     * 
+     *     <fs-api></fs-api>
      */
-    add: function(client, name){
-      if(typeof name === 'undefined'){
-        name = 'default';
-      }
-      this._clients[name] = client;
-    },
-    
-    /**
-     * Get a client.
-     *
-     * @param {String} [name]
-     * @return {Object} FamilySearch SDK instance
-     */
-    get: function(name){
-      if(typeof name === 'undefined'){
-        name = 'default';
-      }
-      return this._clients[name];
-    }
-  };
-  
-  /**
-   * `fs-api` is used to setup an SDK instance. It allows for multiple instances
-   * to be created but also gracefully handles the more common case where you
-   * only have one.
-   * 
-   * ##### Example
-   * 
-   *     <fs-api></fs-api>
-   */
-  Polymer({
-    
-    is: 'fs-api',
-    
-    properties: {
+    Polymer({
       
-      /**
-       * The client ID (app key) you rceived from FamilySearch
-       */
-      clientId: String,
+      is: 'fs-api',
       
-      /**
-       * The redirect URI for OAuth
-       */
-      redirectUri: String,
-      
-      /**
-       * The environment. `production`, `sandbox`, or `staging`.
-       */
-      environment: {
-        type: String,
-        value: 'sandbox'
+      properties: {
+        
+        /**
+         * The client ID (app key) you rceived from FamilySearch
+         */
+        clientId: String,
+        
+        /**
+         * The redirect URI for OAuth
+         */
+        redirectUri: String,
+        
+        /**
+         * The environment. `production`, `sandbox`, or `staging`.
+         */
+        environment: {
+          type: String,
+          value: 'sandbox'
+        },
+        
+        /**
+         * Whether the access token should be saved and loaded from cookies.
+         */
+        saveAccessToken: {
+          type: Boolean,
+          value: true
+        },
+        
+        /**
+         * Optional name for this client instance. If you use multiple instances then
+         * components which require an instance can configured with the client
+         * name so they use the proper client instance.
+         */
+        name: {
+          type: String,
+          value: 'default'
+        },
+        
+        /**
+         * The FamilySearch SDK object
+         */
+        client: {
+          type: Object,
+          readOnly: true
+        }
+        
       },
       
-      /**
-       * Whether the access token should be saved and loaded from cookies.
-       */
-      saveAccessToken: {
-        type: Boolean,
-        value: true
-      },
-      
-      /**
-       * Optional name for this client instance. If you use multiple instances then
-       * components which require an instance can configured with the client
-       * name so they use the proper client instance.
-       */
-      name: {
-        type: String,
-        value: 'default'
-      },
-      
-      /**
-       * The FamilySearch SDK object
-       */
-      client: {
-        type: Object,
-        readOnly: true
+      attached: function(){
+        this.client = Clients.get(this.name);
+        if(typeof this.client === undefined){
+          this.client = new FamilySearch({
+            client_id: this.clientId,
+            redirect_uri: this.redirectUri,
+            environment: this.environment,
+            save_access_token: this.saveAccessToken
+          });
+          Clients.add(this.client);
+        }
       }
       
-    },
+    });
     
-    attached: function(){
-      this.client = new FamilySearch({
-        client_id: this.clientId,
-        redirect_uri: this.redirectUri,
-        environment: this.environment,
-        save_access_token: this.saveAccessToken
-      });
-      FamilySearchClients.add(this._client);
-    }
-    
-  });
+  })();
 </script>
