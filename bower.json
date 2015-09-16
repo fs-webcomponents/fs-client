@@ -1,6 +1,6 @@
 {
   "name": "fs-client",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Web component to access the FamilySearch APIs",
   "homepage": "https://github.com/york-solutions/fs-client",
   "main": "fs-client.html",

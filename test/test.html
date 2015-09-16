@@ -14,6 +14,8 @@
     <fs-client id="basic" client-id="foobar" redirect-uri="/"></fs-client>
     <fs-client id="name1" client-id="foobar" name="test"></fs-client>
     <fs-client id="name2" name="test"></fs-client>
+    <fs-client id="init" client-id="foobar" name="init"></fs-client>
+    <div id="init-wrapper"></div>
 
     <script>
       suite('<fs-client>', function(){
@@ -49,6 +51,13 @@
           
           // Set state to authenticated
           element._setAuthenticated(true);
+        });
+        
+        test('initial authenticated state', function(){
+          document.getElementById('init').client.settings.accessToken = "foobar";
+          var wrapper = document.getElementById('init-wrapper');
+          wrapper.innerHTML = '<fs-client name="init"></fs-client>';
+          expect(wrapper.childNodes[0].authenticated).to.be.true;
         });
         
       });

@@ -113,7 +113,7 @@
         
       },
       
-      attached: function(){
+      ready: function(){
         this._setClient(Clients.get(this.name));
         
         // If a client hasn't already been registered with that name
@@ -137,6 +137,9 @@
           
           Clients.add(this.client, this.name);
         }
+        
+        // Set initial authenticated state
+        this._setAuthenticated(this.client.hasAccessToken());
       },
       
       /**
