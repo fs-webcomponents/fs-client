@@ -16,18 +16,39 @@
     <fs-client id="name2" name="test"></fs-client>
 
     <script>
-      suite('<fs-client>', function() {
+      suite('<fs-client>', function(){
         
-        test('basic setup', function() {
+        test('basic setup', function(){
           var element = document.getElementById('basic');
           expect(element.client).to.exist;
           expect(element.redirectUri).to.equal(document.location.origin + '/');
         });
         
-        test('named clients', function() {
+        test('named clients', function(){
           var el1 = document.getElementById('name1'),
               el2 = document.getElementById('name2');
           expect(el1.client).to.equal(el2.client);
+        });
+        
+        // Set state to authenticated first and listen for the change event.
+        // Then set the state to unauthenticated and verify the event fired too.
+        test('authentication', function(done){
+          var element = document.getElementById('basic');
+          element.addEventListener('authenticated-changed', function(e){
+            
+            // Authenticated event; change state to unauthenticated
+            if(e.detail.value){
+              element.signOut();
+            }
+            
+            // Unauthenicated; we're done
+            else {
+              done();
+            }
+          });
+          
+          // Set state to authenticated
+          element._setAuthenticated(true);
         });
         
       });

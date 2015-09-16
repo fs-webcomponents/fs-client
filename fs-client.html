@@ -99,6 +99,16 @@
         client: {
           type: Object,
           readOnly: true
+        },
+        
+        /**
+         * Whether the client is authenticated
+         */
+        authenticated: {
+          type: Boolean,
+          readOnly: true,
+          notify: true,
+          value: false
         }
         
       },
@@ -127,6 +137,33 @@
           
           Clients.add(this.client, this.name);
         }
+      },
+      
+      /**
+       * Begin the OAuth2 process for signing in (authenticating) with FamilySearch.
+       * Call this method instead of directly using the client so that this
+       * component can accurately track the state of authentication and notify
+       * other components of changes.
+       */
+      signIn: function(){
+        if(this.client){
+          this.client.getAccessToken().then(function(){
+            this._setAuthenticated(true);
+          }, function(){
+            this._setAuthenticated(false);
+          });
+        }
+      },
+      
+      /**
+       * Sign out the user (end their session).
+       * Call this method instead of directly using the client so that this
+       * component can accurately track the state of authentication and notify
+       * other components of changes.
+       */
+      signOut: function(){
+        this.client.invalidateAccessToken();
+        this._setAuthenticated(false);
       }
       
     });
