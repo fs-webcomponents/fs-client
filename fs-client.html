@@ -10,6 +10,8 @@
      */
     var Clients = {
       
+      _defaultName: 'default',
+      
       /**
        * Map of sdk instances
        */
@@ -19,26 +21,68 @@
        * Add a client.
        * 
        * @param {Object} FamilySearch SDK instance
-       * @param {String} [name] defaults to 'default'
+       * @param {String} [name]
        */
-      add: function(client, name){
-        if(typeof name === 'undefined'){
-          name = 'default';
-        }
-        this._clients[name] = client;
+      addClient: function(client, name){
+        name = this._setDefaultName(name);
+        var clientConfig = {
+          client: client,
+          observers: []
+        };
+        this._clients[name] = clientConfig;
       },
       
       /**
-       * Get a client.
+       * Get a client object.
        *
        * @param {String} [name]
        * @return {Object} FamilySearch SDK instance
        */
-      get: function(name){
-        if(typeof name === 'undefined'){
-          name = 'default';
+      getClient: function(name){
+        name = this._setDefaultName(name);
+        if(this._clients[name]){
+          return this._clients[name].client;
         }
-        return this._clients[name];
+      },
+      
+      /**
+       * Add an observer to a client
+       * 
+       * @param {Object} observer
+       * @param {String} name
+       */
+      addObserver: function(observer, name){
+        name = this._setDefaultName(name);
+        if(this._clients[name]){
+          this._clients[name].observers.push(observer);
+        }
+      },
+      
+      /**
+       * Notify observers that the authentication state changed
+       * 
+       * @param {String} [name]
+       */
+      notify: function(name){
+        name = this._setDefaultName(name);
+        if(this._clients[name]){
+          var authenticated = this._clients[name].client.hasAccessToken(),
+              observers = this._clients[name].observers;
+          for(var i = 0; i < observers.length; i++){
+            observers[i]._setAuthenticated(authenticated);
+          }
+        }
+      },
+      
+      /**
+       * Return the default if name isn't defined
+       */
+      _setDefaultName: function(name){
+        if(typeof name === 'undefined'){
+          return this._defaultName;
+        } else {
+          return name;
+        }
       }
     };
     
@@ -114,7 +158,7 @@
       },
       
       ready: function(){
-        this._setClient(Clients.get(this.name));
+        this._setClient(Clients.getClient(this.name));
         
         // If a client hasn't already been registered with that name
         // then create a new one.
@@ -135,8 +179,10 @@
             save_access_token: this.saveAccessToken
           }));
           
-          Clients.add(this.client, this.name);
+          Clients.addClient(this.client, this.name);
         }
+        
+        Clients.addObserver(this, this.name);
         
         // Set initial authenticated state
         this._setAuthenticated(this.client.hasAccessToken());
@@ -152,9 +198,9 @@
         var self = this;
         if(self.client){
           self.client.getAccessToken().then(function(){
-            self._setAuthenticated(true);
+            Clients.notify(self.name);
           }, function(){
-            self._setAuthenticated(false);
+            // TODO: error event?
           });
         }
       },
@@ -167,7 +213,7 @@
        */
       signOut: function(){
         this.client.invalidateAccessToken();
-        this._setAuthenticated(false);
+        Clients.notify(this.name);
       }
       
     });
