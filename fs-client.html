@@ -96,12 +96,15 @@
         /**
          * The FamilySearch SDK object
          */
-        client: Object
+        client: {
+          type: Object,
+          readOnly: true
+        }
         
       },
       
       attached: function(){
-        this.client = Clients.get(this.name);
+        this._setClient(Clients.get(this.name));
         
         // If a client hasn't already been registered with that name
         // then create a new one.
@@ -115,12 +118,12 @@
           
           // We don't do validation of the input because the SDK will do validation
           // and throw errors when appropriate
-          this.client = new FamilySearch({
+          this._setClient(new FamilySearch({
             client_id: this.clientId,
             redirect_uri: this.redirectUri,
             environment: this.environment,
             save_access_token: this.saveAccessToken
-          });
+          }));
           
           Clients.add(this.client, this.name);
         }
