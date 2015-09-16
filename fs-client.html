@@ -146,11 +146,12 @@
        * other components of changes.
        */
       signIn: function(){
-        if(this.client){
-          this.client.getAccessToken().then(function(){
-            this._setAuthenticated(true);
+        var self = this;
+        if(self.client){
+          self.client.getAccessToken().then(function(){
+            self._setAuthenticated(true);
           }, function(){
-            this._setAuthenticated(false);
+            self._setAuthenticated(false);
           });
         }
       },
