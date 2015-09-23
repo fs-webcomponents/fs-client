@@ -2,7 +2,7 @@
   "name": "fs-client",
   "version": "0.1.9",
   "description": "Polymer element that manages JavaScript SDK instances",
-  "homepage": "https://github.com/york-solutions/fs-client",
+  "homepage": "https://github.com/fs-webcomponents/fs-client",
   "main": "fs-client.html",
   "authors": [
     "Justin York"
