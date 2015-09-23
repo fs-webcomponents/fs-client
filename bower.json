@@ -1,7 +1,7 @@
 {
   "name": "fs-client",
   "version": "0.1.9",
-  "description": "Web component to access the FamilySearch APIs",
+  "description": "Polymer element that manages JavaScript SDK instances",
   "homepage": "https://github.com/york-solutions/fs-client",
   "main": "fs-client.html",
   "authors": [

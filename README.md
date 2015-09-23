@@ -1,3 +1,3 @@
 # fs-client
 
-Experiment with web components
+Polymer element that manages JavaScript SDK instances
