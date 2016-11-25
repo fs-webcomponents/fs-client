@@ -185,8 +185,14 @@
           
           // Allow relative URIs to be specified. This makes it easy to create
           // demos that may be run both locally and on the web on multiple hosts.
-          if(this.redirectUri && this.redirectUri.indexOf('/') === 0){
-            this.redirectUri = qualifyURL(this.redirectUri);
+          if(this.redirectUri){
+            
+            // Allow . to represent current location.
+            if(this.redirectUri = '.'){
+              this.redirectUri = document.location.href;
+            } else {
+              this.redirectUri = qualifyURL(this.redirectUri);
+            }
           }
           
           // We don't do validation of the input because the SDK will do validation
@@ -216,11 +222,7 @@
       signIn: function(){
         var self = this;
         if(self.client){
-          self.client.getAccessToken().then(function(){
-            Clients.notify(self.name);
-          }, function(){
-            // TODO: error event?
-          });
+          self.client.oauthRedirect();
         }
       },
       
