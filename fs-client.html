@@ -1,5 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
-<script src="https://cdn.jsdelivr.net/familysearch-javascript-sdk/2.3/familysearch-javascript-sdk.min.js"></script> 
+<script src="https://unpkg.com/fs-js-lite@1.3.0/dist/FamilySearch.min.js"></script> 
 
 <script>
   // Wrap in a function so we don't pollute the global scope.
@@ -66,7 +66,7 @@
       notify: function(name){
         name = this._setDefaultName(name);
         if(this._clients[name]){
-          var authenticated = this._clients[name].client.hasAccessToken(),
+          var authenticated = !!this._clients[name].client.getAccessToken(),
               observers = this._clients[name].observers;
           for(var i = 0; i < observers.length; i++){
             observers[i]._setAuthenticated(authenticated);
@@ -89,7 +89,7 @@
     /**
      * `fs-client` is used to setup an instance of the JavaScript SDK.  
      * 
-     *     <fs-client client-id="myclientid" redirect-uri="/fs-auth" environment="sandbox" save-access-token></fs-client>
+     *     <fs-client app-key="myappkey123" redirect-uri="/fs-auth" environment="sandbox" save-access-token></fs-client>
      * 
      * ### Accessing The SDK Object
      * 
@@ -121,9 +121,9 @@
       properties: {
         
         /**
-         * The client ID (app key) you rceived from FamilySearch
+         * The app key you received from FamilySearch
          */
-        clientId: String,
+        appKey: String,
         
         /**
          * The redirect URI for OAuth
@@ -192,10 +192,10 @@
           // We don't do validation of the input because the SDK will do validation
           // and throw errors when appropriate
           this._setClient(new FamilySearch({
-            client_id: this.clientId,
-            redirect_uri: this.redirectUri,
+            appKey: this.appKey,
+            redirectUri: this.redirectUri,
             environment: this.environment,
-            save_access_token: this.saveAccessToken
+            saveAccessToken: this.saveAccessToken
           }));
           
           Clients.addClient(this.client, this.name);
@@ -204,7 +204,7 @@
         Clients.addObserver(this, this.name);
         
         // Set initial authenticated state
-        this._setAuthenticated(this.client.hasAccessToken());
+        this._setAuthenticated(!!this.client.getAccessToken());
       },
       
       /**
@@ -231,7 +231,7 @@
        * other components of changes.
        */
       signOut: function(){
-        this.client.invalidateAccessToken();
+        this.client.deleteAccessToken();
         Clients.notify(this.name);
       }
       
