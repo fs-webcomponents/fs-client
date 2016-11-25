@@ -205,6 +205,15 @@
           }));
           
           Clients.addClient(this.client, this.name);
+        
+          // Check for the code query parameter that signifies and oauth redirect
+          // response. oauthResponse() automatically checks the URL and doesn't
+          // fire the callback unless it finds the code. Thus we don't have to
+          // check ourself and can just call it.
+          var self = this;
+          this.client.oauthResponse(function(response){
+            Clients.notify(self.name);
+          });
         }
         
         Clients.addObserver(this, this.name);
