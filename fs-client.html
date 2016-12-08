@@ -1,5 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
-<script src="https://unpkg.com/fs-js-lite@1.3.0/dist/FamilySearch.min.js"></script> 
+<script src="//unpkg.com/fs-js-lite@2.0.0/dist/FamilySearch.min.js"></script> 
 
 <script>
   // Wrap in a function so we don't pollute the global scope.
@@ -188,7 +188,7 @@
           if(this.redirectUri){
             
             // Allow . to represent current location.
-            if(this.redirectUri = '.'){
+            if(this.redirectUri === '.'){
               this.redirectUri = document.location.href;
             } else {
               this.redirectUri = qualifyURL(this.redirectUri);
