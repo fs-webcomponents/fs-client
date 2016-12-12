@@ -211,8 +211,10 @@
           // fire the callback unless it finds the code. Thus we don't have to
           // check ourself and can just call it.
           var self = this;
-          this.client.oauthResponse(function(response){
-            Clients.notify(self.name);
+          this.client.oauthResponse(function(error, response){
+            if(response){
+              Clients.notify(self.name);
+            }
           });
         }
         
