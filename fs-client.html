@@ -172,6 +172,18 @@
           readOnly: true,
           notify: true,
           value: false
+        },
+        
+        /**
+         * Path to reload after successfully exchanging a code for a token. This
+         * is often desired to remove the code query param from the URL.
+         * 
+         * Set to `.` to reload the current location. Any other value will be
+         * assigned directly to `window.location.href`.
+         */
+        reloadAfterCode: {
+          type: String,
+          value: ''
         }
         
       },
@@ -214,6 +226,13 @@
           this.client.oauthResponse(function(error, response){
             if(response){
               Clients.notify(self.name);
+              if(response.statusCode === 200 && self.reloadAfterCode){
+                if(self.reloadAfterCode === '.'){
+                  window.location.href = window.location.pathname;
+                } else {
+                  window.location.href = self.reloadAfterCode;
+                }
+              }
             }
           });
         }
