@@ -188,7 +188,7 @@
          * the URL. Set to `.` to reload the current location. This is only used
          * when `exchangeCode` is set to `true`.
          */
-        redirectOnSignIn: {
+        redirectAfterSignIn: {
           type: String,
           value: ''
         },
@@ -196,13 +196,13 @@
         /**
          * Path to redirect the user to after signing out.
          */
-        redirectOnSignOut: {
+        redirectAfterSignOut: {
           type: String,
           value: ''
         },
         
         /**
-         * When redirecting users due to `redirectOnSignIn` or `redirectOnSignOut`
+         * When redirecting users due to `redirectAfterSignIn` or `redirectAfterSignOut`
          * update the browser's history state instead of window.location.
          */
         updateHistoryState: {
@@ -288,11 +288,11 @@
         var redirectPath;
         if(response){
           Clients.notify(this.name);
-          if(response.statusCode === 200 && this.redirectOnSignIn){
-            if(this.redirectOnSignIn === '.'){
+          if(response.statusCode === 200 && this.redirectAfterSignIn){
+            if(this.redirectAfterSignIn === '.'){
               redirectPath = window.location.pathname;
             } else {
-              redirectPath = this.redirectOnSignIn;
+              redirectPath = this.redirectAfterSignIn;
             }
             if(this.updateHistoryState){
               window.history.replaceState('', '', redirectPath);
