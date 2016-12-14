@@ -279,6 +279,9 @@
       signOut: function(){
         this.client.deleteAccessToken();
         Clients.notify(this.name);
+        if(this.redirectAfterSignOut){
+          this._redirect(this.redirectAfterSignOut);
+        }
       },
       
       /**
@@ -294,11 +297,20 @@
             } else {
               redirectPath = this.redirectAfterSignIn;
             }
-            if(this.updateHistoryState){
-              window.history.replaceState('', '', redirectPath);
-            } else {
-              window.location.href = redirectPath;
-            }
+            this._redirect(redirectPath);
+          }
+        }
+      },
+      
+      /**
+       * Perform a redirect using history or location.
+       */
+      _redirect: function(path){
+        if(path){
+          if(this.updateHistoryState){
+            window.history.replaceState('', '', path);
+          } else {
+            window.location.href = path;
           }
         }
       }
