@@ -175,15 +175,39 @@
         },
         
         /**
-         * Path to reload after successfully exchanging a code for a token. This
-         * is often desired to remove the code query param from the URL.
-         * 
-         * Set to `.` to reload the current location. Any other value will be
-         * assigned directly to `window.location.href`.
+         * Exchange the OAuth code client side.
          */
-        reloadAfterCode: {
+        exchangeCode: {
+          type: Boolean,
+          value: false
+        },
+        
+        /**
+         * Path to redirect the user to after successfully exchanging a code for
+         * a token. This is often desired to remove the code query param from 
+         * the URL. Set to `.` to reload the current location. This is only used
+         * when `exchangeCode` is set to `true`.
+         */
+        redirectOnSignIn: {
           type: String,
           value: ''
+        },
+        
+        /**
+         * Path to redirect the user to after signing out.
+         */
+        redirectOnSignOut: {
+          type: String,
+          value: ''
+        },
+        
+        /**
+         * When redirecting users due to `redirectOnSignIn` or `redirectOnSignOut`
+         * update the browser's history state instead of window.location.
+         */
+        updateHistoryState: {
+          type: Boolean,
+          value: false
         }
         
       },
@@ -217,24 +241,14 @@
           }));
           
           Clients.addClient(this.client, this.name);
+        }
         
-          // Check for the code query parameter that signifies and oauth redirect
-          // response. oauthResponse() automatically checks the URL and doesn't
-          // fire the callback unless it finds the code. Thus we don't have to
-          // check ourself and can just call it.
-          var self = this;
-          this.client.oauthResponse(function(error, response){
-            if(response){
-              Clients.notify(self.name);
-              if(response.statusCode === 200 && self.reloadAfterCode){
-                if(self.reloadAfterCode === '.'){
-                  window.location.href = window.location.pathname;
-                } else {
-                  window.location.href = self.reloadAfterCode;
-                }
-              }
-            }
-          });
+        // Check for the code query parameter that signifies an oauth redirect
+        // response. oauthResponse() automatically checks the URL and doesn't
+        // fire the callback unless it finds the code. Thus we don't have to
+        // check ourself and can just call it.
+        if(this.exchangeCode){
+          this.client.oauthResponse(this._tokenResponse.bind(this));
         }
         
         Clients.addObserver(this, this.name);
@@ -265,6 +279,28 @@
       signOut: function(){
         this.client.deleteAccessToken();
         Clients.notify(this.name);
+      },
+      
+      /**
+       * Handle the response of an OAuth token request.
+       */
+      _tokenResponse: function(error, response){
+        var redirectPath;
+        if(response){
+          Clients.notify(this.name);
+          if(response.statusCode === 200 && this.redirectOnSignIn){
+            if(this.redirectOnSignIn === '.'){
+              redirectPath = window.location.pathname;
+            } else {
+              redirectPath = this.redirectOnSignIn;
+            }
+            if(this.updateHistoryState){
+              window.history.replaceState('', '', redirectPath);
+            } else {
+              window.location.href = redirectPath;
+            }
+          }
+        }
       }
       
     });
