@@ -368,6 +368,8 @@
         } else {
           client._debouncing[request.url].push(next);
         }
+      } else {
+        next();
       }
     }
     
