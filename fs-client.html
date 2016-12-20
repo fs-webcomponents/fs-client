@@ -87,7 +87,7 @@
     };
     
     /**
-     * `fs-client` is used to setup an instance of the JavaScript SDK.  
+     * `fs-client` is used to configure and access an instance of the [FS JS Lite SDK](https://github.com/FamilySearch/fs-js-lite).
      * 
      *     <fs-client app-key="myappkey123" redirect-uri="/fs-auth" environment="sandbox" save-access-token></fs-client>
      * 
@@ -104,7 +104,24 @@
      * 
      * Now in the element's methods you can access the client object with `getClient()`:
      * 
-     *     this.getClient().getPerson(personId)
+     *     this.getClient().get('/platform/users/current', function(error, response){})
+     * 
+     * ### Authentication
+     * 
+     * Use the `signIn()` method to initiate authentication via OAuth2. You'll
+     * likely want to set the `exchangeCode` property to true so that the client
+     * automatically finishes the OAuth process. You may also register a path
+     * on `redirectAfterSignIn` so that the URL is left clean instead of the
+     * `code` query param remaining in the URL.
+     * 
+     * ### Debouncing
+     * 
+     * When creating an app that includes lots of FS web components it is common
+     * for multiple components to request the same data at the same time. For
+     * example, a person's detail page may have 3 components that all request
+     * the person's data. By setting `debounceDuplicates` to true, the client
+     * will transparently resolve duplicate requests and have them share the
+     * same response.
      * 
      * ### Multiple SDK Instances
      * 
