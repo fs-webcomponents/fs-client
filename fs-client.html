@@ -1,5 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
-<script src="//unpkg.com/fs-js-lite@2.0.0/dist/FamilySearch.min.js"></script> 
+<script src="//unpkg.com/fs-js-lite@2.0.0/dist/FamilySearch.js"></script> 
 
 <script>
   // Wrap in a function so we don't pollute the global scope.
@@ -208,6 +208,17 @@
         updateHistoryState: {
           type: Boolean,
           value: false
+        },
+        
+        /**
+         * When enabled, multiple outstanding requests for the same resource 
+         * will be de-duplicated. In other words, the callback for successive
+         * requests will be resolved with the response from the first. This
+         * only works for outstanding GET requests.
+         */
+        debounceDuplicates: {
+          type: Boolean,
+          value: false
         }
         
       },
@@ -241,6 +252,17 @@
           }));
           
           Clients.addClient(this.client, this.name);
+        }
+        
+        // Add the debounce middleware when debounce is enabled
+        if(this.debounceDuplicates){
+          
+          // Setup the debouncing storage directly on the client. This ensures
+          // that each client has it's unique storage and that we don't cross 
+          // the streams.
+          this.client._debouncing = {};
+          this.client.addRequestMiddleware(debounceRequestMiddlware);
+          this.client.addResponseMiddleware(debounceResponseMiddleware);
         }
         
         // Check for the code query parameter that signifies an oauth redirect
@@ -316,6 +338,43 @@
       }
       
     });
+    
+    function debounceRequestMiddlware(client, request, next){
+      if(request.method === 'GET'){
+        
+        // We operate normally for the first request and store the next method
+        // for successive requests. Then when the requests resolves we return 
+        // the response to any stored next methods.
+        if(client._debouncing[request.url] === undefined){
+          client._debouncing[request.url] = [];
+          next();
+        } else {
+          client._debouncing[request.url].push(next);
+        }
+      }
+    }
+    
+    function debounceResponseMiddleware(client, request, response, next){
+      if(request.method === 'GET'){
+        var debounces = client._debouncing[request.url];
+        if(debounces && debounces.length){
+          response.debounced = true;
+          for(var i = 0; i < debounces.length; i++){
+            
+            // next() may also use setTimeout to ensure async callbacks. But we
+            // also do it here anyway to ensure that the original callback is
+            // called first.
+            (function(j){
+              setTimeout(function(){
+                debounces[j](null, response);
+              });
+            }(i));
+          }
+        }
+        delete client._debouncing[request.url];
+      }
+      next();
+    }
     
     // http://stackoverflow.com/q/470832
     function qualifyURL(url) {
