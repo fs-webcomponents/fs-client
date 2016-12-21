@@ -1,6 +1,6 @@
 {
   "name": "fs-client",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "Polymer element that manages JavaScript SDK instances",
   "homepage": "https://github.com/fs-webcomponents/fs-client",
   "main": "fs-client.html",
