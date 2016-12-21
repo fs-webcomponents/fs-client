@@ -1,7 +1,5 @@
 # fs-client
 
-__An experimental FamilySearch Polymer element.__
-
-Polymer element that manages JavaScript SDK instances. Read the 
-[docs](http://fs-webcomponents.github.io/fs-client/components/fs-client/)
+Polymer element that manages FamilySearch [SDK](https://github.com/FamilySearch/fs-js-lite)
+instances. Read the [docs](http://fs-webcomponents.github.io/fs-client/components/fs-client/)
 for usage instructions.
