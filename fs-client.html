@@ -1,5 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
-<script src="//unpkg.com/fs-js-lite@2.1.0/dist/FamilySearch.min.js"></script> 
+<script src="//unpkg.com/fs-js-lite@2.3.0/dist/FamilySearch.min.js"></script> 
 
 <script>
   // Wrap in a function so we don't pollute the global scope.
@@ -241,35 +241,42 @@
       },
       
       ready: function(){
-        this._setClient(Clients.getClient(this.name));
         
-        // If a client hasn't already been registered with that name
-        // then create a new one.
-        if(typeof this.client === 'undefined'){
+        // Generate an options object for the SDK
+        var config = {
+          appKey: this.appKey,
+          redirectUri: this.redirectUri,
+          environment: this.environment,
+          saveAccessToken: this.saveAccessToken
+        };
+        
+        // Allow relative URIs to be specified. This makes it easy to create
+        // demos that may be run both locally and on the web on multiple hosts.
+        if(config.redirectUri){
           
-          // Allow relative URIs to be specified. This makes it easy to create
-          // demos that may be run both locally and on the web on multiple hosts.
-          if(this.redirectUri){
-            
-            // Allow . to represent current location.
-            if(this.redirectUri === '.'){
-              this.redirectUri = document.location.href;
-            } else {
-              this.redirectUri = qualifyURL(this.redirectUri);
-            }
+          // Allow . to represent current location.
+          if(config.redirectUri === '.'){
+            config.redirectUri = document.location.href;
+          } else {
+            config.redirectUri = qualifyURL(config.redirectUri);
           }
-          
-          // We don't do validation of the input because the SDK will do validation
-          // and throw errors when appropriate
-          this._setClient(new FamilySearch({
-            appKey: this.appKey,
-            redirectUri: this.redirectUri,
-            environment: this.environment,
-            saveAccessToken: this.saveAccessToken
-          }));
-          
-          Clients.addClient(this.client, this.name);
         }
+        
+        // Get the SDK client
+        var client = Clients.getClient(this.name);
+        
+        // Create a client if one doesn't exist
+        if(typeof client === 'undefined'){
+          client = new FamilySearch({});
+          Clients.addClient(client, this.name);
+        }
+        
+        this._setClient(client);
+        
+        // Configure the client
+        client.config(config);
+        
+        this._setClient(Clients.getClient(this.name));
         
         // Add the debounce middleware when debounce is enabled
         if(this.debounceDuplicates){
