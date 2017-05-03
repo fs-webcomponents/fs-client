@@ -301,6 +301,9 @@
         
         // Set initial authenticated state
         this._setAuthenticated(!!this.client.getAccessToken());
+        
+        // Notify all other observers of possible auth changes
+        Clients.notify(this.name);
       },
       
       /**
