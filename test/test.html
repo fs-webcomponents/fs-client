@@ -23,7 +23,7 @@
         test('basic setup', function(){
           var element = document.getElementById('basic');
           expect(element.client).to.exist;
-          expect(element.redirectUri).to.equal(document.location.origin + '/');
+          expect(element.client.redirectUri).to.equal(document.location.origin + '/');
         });
         
         test('named clients', function(){
