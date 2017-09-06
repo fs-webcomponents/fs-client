@@ -16,6 +16,8 @@
     <fs-client id="name2" name="test"></fs-client>
     <fs-client id="init" app-key="foobar" name="init"></fs-client>
     <div id="init-wrapper"></div>
+    <fs-client name="debounce" debounce-duplicates app-key="debounce" redirect-uri="/" id="debounce"></fs-client>
+    <fs-client name="debounce" debounce-duplicates app-key="debounce" redirect-uri="/"></fs-client>
 
     <script>
       suite('<fs-client>', function(){
@@ -58,6 +60,10 @@
           var wrapper = document.getElementById('init-wrapper');
           wrapper.innerHTML = '<fs-client name="init"></fs-client>';
           expect(wrapper.childNodes[0].authenticated).to.be.true;
+        });
+        
+        test('do no add dbounce middleware multiple times', function(){
+          expect(document.getElementById('debounce').client.middleware.response.length).to.equal(4);
         });
         
       });

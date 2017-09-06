@@ -240,7 +240,13 @@
         
       },
       
-      ready: function(){
+      observers: [
+        'config(appKey, redirectUri, environment, saveAccessToken, name, debounceDuplicates, exchangeCode)'
+      ],
+      
+      config: function(){
+        
+        console.log('config');
         
         // Generate an options object for the SDK
         var config = {
@@ -279,7 +285,7 @@
         this._setClient(Clients.getClient(this.name));
         
         // Add the debounce middleware when debounce is enabled
-        if(this.debounceDuplicates){
+        if(this.debounceDuplicates && !this.client._debouncing){
           
           // Setup the debouncing storage directly on the client. This ensures
           // that each client has it's unique storage and that we don't cross 
