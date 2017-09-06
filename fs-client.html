@@ -241,12 +241,28 @@
       },
       
       observers: [
-        'config(appKey, redirectUri, environment, saveAccessToken, name, debounceDuplicates, exchangeCode)'
+        '_createClient(name)',
+        '_configureClient(appKey, redirectUri, environment, saveAccessToken, name, debounceDuplicates, exchangeCode)'
       ],
       
-      config: function(){
+      /**
+       * Get the SDK client for the corresponding name;
+       * create one if it doesn't already exist.
+       * 
+       * @param {String} name client name
+       */
+      _createClient: function(){
+        var client = Clients.getClient(this.name);
+        if(client === undefined){
+          client = new FamilySearch({});
+          Clients.addClient(client, this.name);
+        }
+        this._setClient(client);
+      },
+      
+      _configureClient: function(){
         
-        console.log('config');
+        this._createClient();
         
         // Generate an options object for the SDK
         var config = {
@@ -268,21 +284,8 @@
           }
         }
         
-        // Get the SDK client
-        var client = Clients.getClient(this.name);
-        
-        // Create a client if one doesn't exist
-        if(typeof client === 'undefined'){
-          client = new FamilySearch({});
-          Clients.addClient(client, this.name);
-        }
-        
-        this._setClient(client);
-        
         // Configure the client
-        client.config(config);
-        
-        this._setClient(Clients.getClient(this.name));
+        this.client.config(config);
         
         // Add the debounce middleware when debounce is enabled
         if(this.debounceDuplicates && !this.client._debouncing){
@@ -303,6 +306,7 @@
           this.client.oauthResponse(this._tokenResponse.bind(this));
         }
         
+        // TODO: don't let this be called multiple times
         Clients.addObserver(this, this.name);
         
         // Set initial authenticated state
