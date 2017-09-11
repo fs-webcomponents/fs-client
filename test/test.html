@@ -62,7 +62,7 @@
           expect(wrapper.childNodes[0].authenticated).to.be.true;
         });
         
-        test('do no add dbounce middleware multiple times', function(){
+        test('do not add dbounce middleware multiple times', function(){
           expect(document.getElementById('debounce').client.middleware.response.length).to.equal(4);
         });
         

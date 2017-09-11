@@ -18,7 +18,8 @@
     "familysearch"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#^2.0.0"
+    "polymer": "Polymer/polymer#^2.0.0",
+    "fs-api-aware": "fs-webcomponents/fs-api-aware"
   },
   "devDependencies": {
     "web-component-tester": "^6.0.0"

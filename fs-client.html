@@ -1,4 +1,5 @@
-<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../fs-api-aware/fs-api-aware.html">
 <script src="//unpkg.com/fs-js-lite@2.3.0/dist/FamilySearch.min.js"></script> 
 
 <script>
@@ -130,135 +131,142 @@
      * 
      *     <fs-client name="user1"></fs-client>
      *     <fs-client name="user2"></fs-client>
+     * 
+     * @customElement
+     * @polymer
      */
-    Polymer({
+    class FSClient extends FSApiAwareMixin(Polymer.Element) {
       
-      is: 'fs-client',
+      static get is() { return 'fs-client'; }
       
-      properties: {
+      static get properties() {
+        return {
         
-        /**
-         * The app key you received from FamilySearch
-         */
-        appKey: String,
-        
-        /**
-         * The redirect URI for OAuth
-         */
-        redirectUri: String,
-        
-        /**
-         * The environment. `production`, `staging`, or `integration`.
-         */
-        environment: {
-          type: String,
-          value: 'integration'
-        },
-        
-        /**
-         * Whether the access token should be saved and loaded from cookies.
-         */
-        saveAccessToken: {
-          type: Boolean,
-          value: false
-        },
-        
-        /**
-         * Optional name for this client instance. If you use multiple instances then
-         * components which require an instance can configured with the client
-         * name so they use the proper client instance.
-         */
-        name: {
-          type: String,
-          value: 'default'
-        },
-        
-        /**
-         * The FamilySearch SDK object
-         */
-        client: {
-          type: Object,
-          readOnly: true
-        },
-        
-        /**
-         * Whether the client is authenticated
-         */
-        authenticated: {
-          type: Boolean,
-          readOnly: true,
-          notify: true,
-          value: false
-        },
-        
-        /**
-         * Exchange the OAuth code client side.
-         */
-        exchangeCode: {
-          type: Boolean,
-          value: false
-        },
-        
-        /**
-         * Path to redirect the user to after successfully exchanging a code for
-         * a token. This is often desired to remove the code query param from 
-         * the URL. Set to `.` to reload the current location. This is only used
-         * when `exchangeCode` is set to `true`.
-         */
-        redirectAfterSignIn: {
-          type: String,
-          value: ''
-        },
-        
-        /**
-         * Path to redirect the user to after signing out.
-         */
-        redirectAfterSignOut: {
-          type: String,
-          value: ''
-        },
-        
-        /**
-         * When redirecting users due to `redirectAfterSignIn` or `redirectAfterSignOut`
-         * update the browser's history state instead of window.location.
-         */
-        updateHistoryState: {
-          type: Boolean,
-          value: false
-        },
-        
-        /**
-         * When enabled, multiple outstanding requests for the same resource 
-         * will be de-duplicated. In other words, the callback for successive
-         * requests will be resolved with the response from the first. This
-         * only works for outstanding GET requests.
-         */
-        debounceDuplicates: {
-          type: Boolean,
-          value: false
-        }
-        
-      },
+          /**
+           * The app key you received from FamilySearch
+           */
+          appKey: String,
+          
+          /**
+           * The redirect URI for OAuth
+           */
+          redirectUri: String,
+          
+          /**
+           * The environment. `production`, `staging`, or `integration`.
+           */
+          environment: {
+            type: String,
+            value: 'integration'
+          },
+          
+          /**
+           * Whether the access token should be saved and loaded from cookies.
+           */
+          saveAccessToken: {
+            type: Boolean,
+            value: false
+          },
+          
+          /**
+           * Optional name for this client instance. If you use multiple instances then
+           * components which require an instance can configured with the client
+           * name so they use the proper client instance.
+           */
+          name: {
+            type: String,
+            value: 'default'
+          },
+          
+          /**
+           * The FamilySearch SDK object
+           */
+          client: {
+            type: Object,
+            readOnly: true
+          },
+          
+          /**
+           * Whether the client is authenticated
+           */
+          authenticated: {
+            type: Boolean,
+            readOnly: true,
+            notify: true,
+            value: false
+          },
+          
+          /**
+           * Exchange the OAuth code client side.
+           */
+          exchangeCode: {
+            type: Boolean,
+            value: false
+          },
+          
+          /**
+           * Path to redirect the user to after successfully exchanging a code for
+           * a token. This is often desired to remove the code query param from 
+           * the URL. Set to `.` to reload the current location. This is only used
+           * when `exchangeCode` is set to `true`.
+           */
+          redirectAfterSignIn: {
+            type: String,
+            value: ''
+          },
+          
+          /**
+           * Path to redirect the user to after signing out.
+           */
+          redirectAfterSignOut: {
+            type: String,
+            value: ''
+          },
+          
+          /**
+           * When redirecting users due to `redirectAfterSignIn` or `redirectAfterSignOut`
+           * update the browser's history state instead of window.location.
+           */
+          updateHistoryState: {
+            type: Boolean,
+            value: false
+          },
+          
+          /**
+           * When enabled, multiple outstanding requests for the same resource 
+           * will be de-duplicated. In other words, the callback for successive
+           * requests will be resolved with the response from the first. This
+           * only works for outstanding GET requests.
+           */
+          debounceDuplicates: {
+            type: Boolean,
+            value: false
+          }
+          
+        };
+      }
       
-      observers: [
-        '_createClient(name)',
-        '_configureClient(appKey, redirectUri, environment, saveAccessToken, name, debounceDuplicates, exchangeCode)'
-      ],
+      static get observers() {
+        return [
+          '_createClient(name)',
+          '_configureClient(appKey, redirectUri, environment, saveAccessToken, name, debounceDuplicates, exchangeCode)'
+        ];
+      }
       
       /**
        * Get the SDK client for the corresponding name; create one if it 
        * doesn't already exist.
        */
-      _createClient: function(){
+      _createClient() {
         var client = Clients.getClient(this.name);
         if(client === undefined){
           client = new FamilySearch({});
           Clients.addClient(client, this.name);
         }
         this._setClient(client);
-      },
+      }
       
-      _configureClient: function(){
+      _configureClient() {
         
         this._createClient();
         
@@ -312,7 +320,7 @@
         
         // Notify all other observers of possible auth changes
         Clients.notify(this.name);
-      },
+      }
       
       /**
        * Begin the OAuth2 process for signing in (authenticating) with FamilySearch.
@@ -320,12 +328,12 @@
        * component can accurately track the state of authentication and notify
        * other components of changes.
        */
-      signIn: function(){
+      signIn() {
         var self = this;
         if(self.client){
           self.client.oauthRedirect();
         }
-      },
+      }
       
       /**
        * Sign out the user (end their session).
@@ -333,18 +341,18 @@
        * component can accurately track the state of authentication and notify
        * other components of changes.
        */
-      signOut: function(){
+      signOut() {
         this.client.deleteAccessToken();
         Clients.notify(this.name);
         if(this.redirectAfterSignOut){
           this._redirect(this.redirectAfterSignOut);
         }
-      },
+      }
       
       /**
        * Handle the response of an OAuth token request.
        */
-      _tokenResponse: function(error, response){
+      _tokenResponse(error, response) {
         var redirectPath;
         if(response){
           Clients.notify(this.name);
@@ -357,12 +365,12 @@
             this._redirect(redirectPath);
           }
         }
-      },
+      }
       
       /**
        * Perform a redirect using history or location.
        */
-      _redirect: function(path){
+      _redirect(path) {
         if(path){
           if(this.updateHistoryState){
             window.history.replaceState('', '', path);
@@ -372,7 +380,9 @@
         }
       }
       
-    });
+    }
+    
+    customElements.define(FSClient.is, FSClient);
     
     function debounceRequestMiddlware(client, request, next){
       if(request.method === 'GET'){
