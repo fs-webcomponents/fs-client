@@ -187,6 +187,15 @@
           },
           
           /**
+           * Access token. Should only be used to set the access token on
+           * initialization. This property should be read to 
+           */
+          accessToken: {
+            type: String,
+            value: ''
+          },
+          
+          /**
            * Whether the client is authenticated
            */
           authenticated: {
@@ -249,7 +258,7 @@
       static get observers() {
         return [
           '_createClient(name)',
-          '_configureClient(appKey, redirectUri, environment, saveAccessToken, name, debounceDuplicates, exchangeCode)'
+          '_configureClient(appKey, redirectUri, environment, accessToken, saveAccessToken, name, debounceDuplicates, exchangeCode)'
         ];
       }
       
@@ -310,6 +319,10 @@
         // check ourself and can just call it.
         if(this.exchangeCode){
           this.client.oauthResponse(this._tokenResponse.bind(this));
+        }
+        
+        if(this.accessToken) {
+          this.client.setAccessToken(this.accessToken);
         }
         
         // TODO: don't let this be called multiple times

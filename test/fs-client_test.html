@@ -18,6 +18,7 @@
     <div id="init-wrapper"></div>
     <fs-client name="debounce" debounce-duplicates app-key="debounce" redirect-uri="/" id="debounce"></fs-client>
     <fs-client name="debounce" debounce-duplicates app-key="debounce" redirect-uri="/"></fs-client>
+    <fs-client id="token" name="access-token" access-token="foobar"></fs-client>
 
     <script>
       suite('<fs-client>', function(){
@@ -64,6 +65,10 @@
         
         test('do not add dbounce middleware multiple times', function(){
           expect(document.getElementById('debounce').client.middleware.response.length).to.equal(4);
+        });
+        
+        test('access token is set', function(){
+          expect(document.getElementById('token').authenticated).to.be.true;
         });
         
       });
