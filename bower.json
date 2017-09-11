@@ -4,9 +4,6 @@
   "description": "Polymer element that manages JavaScript SDK instances",
   "homepage": "https://github.com/fs-webcomponents/fs-client",
   "main": "fs-client.html",
-  "authors": [
-    "Justin York"
-  ],
   "license": "MIT",
   "ignore": [
     "/.*"
