@@ -1,5 +1,4 @@
 <link rel="import" href="../polymer/polymer-element.html">
-<link rel="import" href="../fs-api-aware/fs-api-aware.html">
 <script src="//unpkg.com/fs-js-lite@2.3.0/dist/FamilySearch.min.js"></script> 
 
 <script>
@@ -135,7 +134,7 @@
      * @customElement
      * @polymer
      */
-    class FSClient extends FSApiAwareMixin(Polymer.Element) {
+    class FSClient extends Polymer.Element {
       
       static get is() { return 'fs-client'; }
       
@@ -258,8 +257,13 @@
       static get observers() {
         return [
           '_createClient(name)',
-          '_configureClient(appKey, redirectUri, environment, accessToken, saveAccessToken, name, debounceDuplicates, exchangeCode)'
+          'configureClient(appKey, redirectUri, environment, accessToken, saveAccessToken, name, debounceDuplicates, exchangeCode)'
         ];
+      }
+      
+      ready() {
+        super.ready();
+        this.configureClient();
       }
       
       /**
@@ -275,7 +279,7 @@
         this._setClient(client);
       }
       
-      _configureClient() {
+      configureClient() {
         
         this._createClient();
         
