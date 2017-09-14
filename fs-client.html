@@ -329,7 +329,7 @@
         client.config(config);
         
         // Add the debounce middleware when debounce is enabled
-        if(this.debounceDuplicates){
+        if(this.debounceDuplicates && !client._debouncing){
           
           // Setup the debouncing storage directly on the client. This ensures
           // that each client has it's unique storage and that we don't cross 
