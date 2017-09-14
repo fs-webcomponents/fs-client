@@ -20,14 +20,18 @@
       /**
        * Add a client.
        * 
-       * @param {Object} FamilySearch SDK instance
-       * @param {String} [name]
+       * @param {Object} client FamilySearch SDK instance
+       * @param {String} name
+       * @param {String} redirectAfterSignOut
+       * @param {Boolean} updateHistoryState
        */
-      addClient: function(client, name){
+      addClient: function(client, name, redirectAfterSignOut = '', updateHistoryState = false){
         name = this._setDefaultName(name);
         var clientConfig = {
-          client: client,
-          observers: []
+          client,
+          observers: [],
+          redirectAfterSignOut,
+          updateHistoryState
         };
         this._clients[name] = clientConfig;
       },
@@ -71,6 +75,28 @@
           for(var i = 0; i < observers.length; i++){
             observers[i]._setAuthenticated(authenticated);
           }
+        }
+      },
+      
+      /**
+       * Get the client's redirectAfterSignOut setting
+       * 
+       * @param {String} name Client's name
+       */
+      redirectAfterSignOut: function(name) {
+        if(this._clients[name]) {
+          return this._clients[name].redirectAfterSignOut;
+        }
+      },
+      
+      /**
+       * Get the client's updateHistoryState setting
+       * 
+       * @param {String} name Client's name
+       */
+      updateHistoryState: function(name) {
+        if(this._clients[name]) {
+          return this._clients[name].updateHistoryState;
         }
       },
       
@@ -265,19 +291,17 @@
        * (ready() isn't called unless it's attached to the DOM).
        */
       configureClient() {
-        if(this.appKey) {
-          console.log('fs-client.configureClient()');
-        }
         
         // Don't setup the client if it's already been setup
         if(this.client) {
           return;
         }
         
+        // Fetch the client; create one if it doesn't yet exist
         var client = Clients.getClient(this.name);
         if(client === undefined){
           client = new FamilySearch({});
-          Clients.addClient(client, this.name);
+          Clients.addClient(client, this.name, this.redirectAfterSignOut, this.updateHistoryState);
         }
         this._setClient(client);
         
@@ -359,8 +383,9 @@
       signOut() {
         this.client.deleteAccessToken();
         Clients.notify(this.name);
-        if(this.redirectAfterSignOut){
-          this._redirect(this.redirectAfterSignOut);
+        var redirect = Clients.redirectAfterSignOut(this.name);
+        if(redirect){
+          this._redirect(redirect);
         }
       }
       
@@ -387,7 +412,7 @@
        */
       _redirect(path) {
         if(path){
-          if(this.updateHistoryState){
+          if(Clients.updateHistoryState(this.name)){
             window.history.replaceState('', '', path);
           } else {
             window.location.href = path;
