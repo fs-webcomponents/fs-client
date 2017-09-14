@@ -254,34 +254,32 @@
         };
       }
       
-      static get observers() {
-        return [
-          '_createClient(name)',
-          'configureClient(appKey, redirectUri, environment, accessToken, saveAccessToken, name, debounceDuplicates, exchangeCode)'
-        ];
-      }
-      
       ready() {
         super.ready();
         this.configureClient();
       }
       
       /**
-       * Get the SDK client for the corresponding name; create one if it 
-       * doesn't already exist.
+       * Designed to only be called once. This method is public so that you can
+       * manually call it if you want to use a client instance in memory
+       * (ready() isn't called unless it's attached to the DOM).
        */
-      _createClient() {
+      configureClient() {
+        if(this.appKey) {
+          console.log('fs-client.configureClient()');
+        }
+        
+        // Don't setup the client if it's already been setup
+        if(this.client) {
+          return;
+        }
+        
         var client = Clients.getClient(this.name);
         if(client === undefined){
           client = new FamilySearch({});
           Clients.addClient(client, this.name);
         }
         this._setClient(client);
-      }
-      
-      configureClient() {
-        
-        this._createClient();
         
         // Generate an options object for the SDK
         var config = {
@@ -304,17 +302,17 @@
         }
         
         // Configure the client
-        this.client.config(config);
+        client.config(config);
         
         // Add the debounce middleware when debounce is enabled
-        if(this.debounceDuplicates && !this.client._debouncing){
+        if(this.debounceDuplicates){
           
           // Setup the debouncing storage directly on the client. This ensures
           // that each client has it's unique storage and that we don't cross 
           // the streams.
-          this.client._debouncing = {};
-          this.client.addRequestMiddleware(debounceRequestMiddlware);
-          this.client.addResponseMiddleware(debounceResponseMiddleware);
+          client._debouncing = {};
+          client.addRequestMiddleware(debounceRequestMiddlware);
+          client.addResponseMiddleware(debounceResponseMiddleware);
         }
         
         // Check for the code query parameter that signifies an oauth redirect
@@ -322,18 +320,18 @@
         // fire the callback unless it finds the code. Thus we don't have to
         // check ourself and can just call it.
         if(this.exchangeCode){
-          this.client.oauthResponse(this._tokenResponse.bind(this));
+          client.oauthResponse(this._tokenResponse.bind(this));
         }
         
         if(this.accessToken) {
-          this.client.setAccessToken(this.accessToken);
+          client.setAccessToken(this.accessToken);
         }
         
         // TODO: don't let this be called multiple times
         Clients.addObserver(this, this.name);
         
         // Set initial authenticated state
-        this._setAuthenticated(!!this.client.getAccessToken());
+        this._setAuthenticated(!!client.getAccessToken());
         
         // Notify all other observers of possible auth changes
         Clients.notify(this.name);
