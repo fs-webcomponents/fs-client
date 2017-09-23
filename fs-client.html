@@ -275,7 +275,22 @@
           debounceDuplicates: {
             type: Boolean,
             value: false
-          }
+          },
+          
+          /**
+           * When enabled, create an unauthenticated session.
+           * https://www.familysearch.org/developers/docs/guides/authentication#unauthenticated-access-tokens
+           */
+          unauthenticatedSession: {
+            type: Boolean,
+            value: false
+          },
+          
+          /**
+           * When using an unauthenticated session, use this to set the IP Address
+           * that is required for obtaining an access token.
+           */
+          ipAddress: String
           
         };
       }
@@ -359,6 +374,17 @@
         
         // Notify all other observers of possible auth changes
         Clients.notify(this.name);
+        
+        // Unauthenticates session?
+        if(this.appKey && this.unauthenticatedSession && this.ipAddress) {
+          client.oauthUnauthenticatedToken(this.ipAddress, (error, response) => {
+            
+            // Notify of potential auth changes. If auth was successful, the token
+            // will be in the SDK client already and detected by our code that
+            // determines auth status.
+            Clients.notify(this.name);
+          });
+        }
       }
       
       /**

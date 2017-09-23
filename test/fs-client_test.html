@@ -19,6 +19,12 @@
     <fs-client name="debounce" debounce-duplicates app-key="debounce" redirect-uri="/" id="debounce"></fs-client>
     <fs-client name="debounce" debounce-duplicates app-key="debounce" redirect-uri="/"></fs-client>
     <fs-client id="token" name="access-token" access-token="foobar"></fs-client>
+    
+    <test-fixture id="unauthenticated">
+      <template>
+        <fs-client name="unauthenticated" app-key="a02j00000099Mc2AAE" unauthenticated-session ip-address="127.0.0.1"></fs-client>
+      </template>
+    </test-fixture>
 
     <script>
       suite('<fs-client>', function(){
@@ -69,6 +75,18 @@
         
         test('access token is set', function(){
           expect(document.getElementById('token').authenticated).to.be.true;
+        });
+        
+        test('unauthenticated token', function(done){
+          var client = fixture('unauthenticated');
+          expect(client.authenticated).to.be.false;
+          client.addEventListener('authenticated-changed', function(e){
+            if(e.detail.value) {
+              done();
+            } else {
+              done(new Error('How did we get an auth->noauth transition?'));
+            }
+          });
         });
         
       });
