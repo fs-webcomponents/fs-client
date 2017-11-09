@@ -162,6 +162,13 @@
      */
     class FSClient extends Polymer.Element {
       
+      /**
+       * Fired when notifyUnauthorizedResponses is enabled at a 401 response
+       * is received from the API.
+       * 
+       * @event unauthorized-response
+       */
+      
       static get is() { return 'fs-client'; }
       
       static get properties() {
@@ -287,6 +294,21 @@
           },
           
           /**
+           * When enabled, emit the `unauthorized-response` event when 401s are
+           * received. The event is debounced every 1s.
+           */
+          notifyUnauthorizedResponses: {
+            type: Boolean,
+            value: false
+          },
+          
+          /** Whether the notifyUnauthorizedResponses middleware has been added */
+          _notifyUnauthorizedResponsesMiddlewareAdded: {
+            type: Boolean,
+            value: false
+          },
+          
+          /**
            * When using an unauthenticated session, use this to set the IP Address
            * that is required for obtaining an access token.
            */
@@ -385,6 +407,17 @@
             Clients.notify(this.name);
           });
         }
+        
+        // Add notifyUnauthorizedResponses middleware
+        if(this.notifyUnauthorizedResponses && !this._notifyUnauthorizedResponsesMiddlewareAdded) {
+          client.addResponseMiddleware((client, request, response, next) => {
+            if(response.statusCode === 401) {
+              this._debounceUnauthorizedResponseNotification();
+            }
+            next();
+          });
+          this._notifyUnauthorizedResponsesMiddlewareAdded = true;
+        }
       }
       
       /**
@@ -444,6 +477,22 @@
             window.location.href = path;
           }
         }
+      }
+      
+      /**
+       * Debounce the unauthorized response notification that is emitted
+       * when notifyUnauthorizedResponses is true and a 401 response is received
+       */
+      _debounceUnauthorizedResponseNotification() {
+        this._unauthorizedResponseDebouncer = Polymer.Debouncer.debounce(
+          this._unauthorizedResponseDebouncer, 
+          Polymer.Async.timeOut.after(1000),
+          () => {
+            this.dispatchEvent(new CustomEvent('unauthorized-response', {
+              bubbles: true,
+              composed: true
+            }));
+          });
       }
       
     }
