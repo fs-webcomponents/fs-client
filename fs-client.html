@@ -1,5 +1,5 @@
 <link rel="import" href="../polymer/polymer-element.html">
-<script src="//unpkg.com/fs-js-lite@2.3.0/dist/FamilySearch.min.js"></script> 
+<script src="//unpkg.com/fs-js-lite@2.6.0/dist/FamilySearch.min.js"></script>
 
 <script>
   // Wrap in a function so we don't pollute the global scope.
@@ -302,6 +302,12 @@
             value: false
           },
           
+          /**
+           * Path value for the access token cookie.
+           * Defaults to the current path (which is probably not what you want).
+           */
+          tokenCookiePath: String,
+          
           /** Whether the notifyUnauthorizedResponses middleware has been added */
           _notifyUnauthorizedResponsesMiddlewareAdded: {
             type: Boolean,
@@ -347,7 +353,8 @@
           appKey: this.appKey,
           redirectUri: this.redirectUri,
           environment: this.environment,
-          saveAccessToken: this.saveAccessToken
+          saveAccessToken: this.saveAccessToken,
+          tokenCookiePath: this.tokenCookiePath
         };
         
         // Allow relative URIs to be specified. This makes it easy to create
